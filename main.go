@@ -7,9 +7,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/cameronstanley/go-reddit"
+	"github.com/go-shiori/go-readability"
 	"github.com/gorilla/feeds"
 )
 
@@ -25,6 +27,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -32,6 +35,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	feed := &feeds.Feed{
@@ -43,7 +47,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, link := range result.Data.Children {
-		feed.Items = append(feed.Items, linkToFeed(&link.Data))
+		item := linkToFeed(&link.Data)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		feed.Items = append(feed.Items, item)
 	}
 
 	rss, err := feed.ToRss()
@@ -52,16 +61,28 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/rss+xml")
+	w.Header().Set("Cache-Control", "max-age=3600, public")
 	io.WriteString(w, rss)
 }
 
 func linkToFeed(link *reddit.Link) *feeds.Item {
+	var content string
+	if !strings.Contains(link.URL, "reddit.com") {
+		article, err := readability.FromURL(link.URL, 1*time.Second)
+		if err != nil {
+			log.Println("error downloading content", err)
+		} else {
+			content = article.Content
+		}
+	}
 	t := time.Unix(int64(link.CreatedUtc), 0)
 	return &feeds.Item{
 		Title:   link.Title,
 		Link:    &feeds.Link{Href: link.URL},
 		Author:  &feeds.Author{Name: link.Author},
 		Created: t,
+		Id:      link.ID,
+		Content: content,
 	}
 }
 
