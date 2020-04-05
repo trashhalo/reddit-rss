@@ -12,15 +12,34 @@ import (
 	"time"
 
 	"github.com/cameronstanley/go-reddit"
-	"github.com/go-shiori/go-readability"
 	"github.com/gorilla/feeds"
+	"gocloud.dev/blob"
+	_ "gocloud.dev/blob/fileblob"
+	_ "gocloud.dev/blob/gcsblob"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.String() == "/" {
+		http.Redirect(w, r, "https://www.reddit.com/r/rss/comments/fvg3ed/i_built_a_better_rss_feed_for_reddit/", 301)
+		return
+	}
+	ctx := r.Context()
+	path := os.Getenv("CACHE_PATH")
+	bucket, err := blob.OpenBucket(ctx, path)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer bucket.Close()
+	article := func(url string) (*string, error) {
+		return getArticle(ctx, bucket, url)
+	}
+
 	url := fmt.Sprintf("https://reddit.com%s", r.URL)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	req.Header.Add("User-Agent", "reddit-rss 1.0")
@@ -48,7 +67,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, link := range result.Data.Children {
-		item := linkToFeed(&link.Data)
+		item := linkToFeed(article, &link.Data)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -66,17 +85,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, rss)
 }
 
-var skipRead = regexp.MustCompile(`(reddit\.com|\.jpg$|\.png$|\.pdf$)`)
+var skipRead = regexp.MustCompile(`(reddit\.com|\.jpg|\.png|\.pdf)`)
 
-func linkToFeed(link *reddit.Link) *feeds.Item {
+type getArticleFn = func(url string) (*string, error)
+
+func linkToFeed(getArticle getArticleFn, link *reddit.Link) *feeds.Item {
 	var content string
 	if !skipRead.MatchString(link.URL) {
-		article, err := readability.FromURL(link.URL, 1*time.Second)
+		c, err := getArticle(link.URL)
 		if err != nil {
 			log.Println("error downloading content", err)
-		} else {
-			content = article.Content
 		}
+		content = *c
 	} else {
 		log.Println("skipping readability", link.URL)
 	}
