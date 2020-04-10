@@ -13,26 +13,12 @@ import (
 
 	"github.com/cameronstanley/go-reddit"
 	"github.com/gorilla/feeds"
-	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/fileblob"
-	_ "gocloud.dev/blob/gcsblob"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.String() == "/" {
 		http.Redirect(w, r, "https://www.reddit.com/r/rss/comments/fvg3ed/i_built_a_better_rss_feed_for_reddit/", 301)
 		return
-	}
-	ctx := r.Context()
-	path := os.Getenv("CACHE_PATH")
-	bucket, err := blob.OpenBucket(ctx, path)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	defer bucket.Close()
-	article := func(url string) (*string, error) {
-		return getArticle(ctx, bucket, url)
 	}
 
 	url := fmt.Sprintf("https://reddit.com%s", r.URL)
@@ -67,7 +53,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, link := range result.Data.Children {
-		item := linkToFeed(article, &link.Data)
+		item := linkToFeed(getArticle, &link.Data)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -95,8 +81,9 @@ func linkToFeed(getArticle getArticleFn, link *reddit.Link) *feeds.Item {
 		c, err := getArticle(link.URL)
 		if err != nil {
 			log.Println("error downloading content", err)
+		} else {
+			content = *c
 		}
-		content = *c
 	} else {
 		log.Println("skipping readability", link.URL)
 	}
