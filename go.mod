@@ -3,6 +3,7 @@ module github.com/trashhalo/reddit-rss
 go 1.14
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/cameronstanley/go-reddit v0.0.0-20170423222116-4bfac7ea95af
 	github.com/gabriel-vasile/mimetype v1.1.0
 	github.com/go-shiori/go-readability v0.0.0-20200403030706-03b14e1967c5

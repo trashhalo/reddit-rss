@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-shiori/go-readability"
 )
@@ -42,15 +43,34 @@ func getMimeType(url string) (*mimetype.MIME, error) {
 	return mime, nil
 }
 
-func cleanupUrl(url string) string {
+func cleanupUrl(url string) (string, error) {
 	if strings.Contains(url, "imgur") && strings.HasSuffix(url, "gifv") {
-		return strings.ReplaceAll(url, "gifv", "webm")
+		return strings.ReplaceAll(url, "gifv", "webm"), nil
 	}
-	return url
+
+	if strings.Contains(url, "gfycat") {
+		res, err := http.Get(url)
+		if err != nil {
+			return "", err
+		}
+
+		defer res.Body.Close()
+		doc, err := goquery.NewDocumentFromReader(res.Body)
+		if err != nil {
+			return "", err
+		}
+
+		vid, _ := doc.Find("meta[property=\"og:video\"]").Attr("content")
+		return vid, nil
+	}
+	return url, nil
 }
 
 func getArticle(u string) (*string, error) {
-	url := cleanupUrl(u)
+	url, err := cleanupUrl(u)
+	if err != nil {
+		return nil, err
+	}
 
 	t, err := getMimeType(url)
 	if err != nil {
