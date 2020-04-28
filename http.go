@@ -10,27 +10,59 @@ import (
 	"github.com/go-shiori/go-readability"
 )
 
-func isImage(url string) (bool, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return false, err
+type fileType int
+
+const (
+	unknown fileType = iota
+	image
+	video
+)
+
+func knownTypes(m *mimetype.MIME) fileType {
+	if strings.HasPrefix(m.String(), "image") {
+		return image
+	} else if strings.HasPrefix(m.String(), "video") {
+		return video
 	}
-	defer resp.Body.Close()
-	mime, err := mimetype.DetectReader(resp.Body)
-	if err != nil {
-		return false, err
-	}
-	return strings.Contains(mime.String(), "image"), nil
+	return unknown
 }
 
-func getArticle(url string) (*string, error) {
-	img, err := isImage(url)
+func getMimeType(url string) (*mimetype.MIME, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	mime, err := mimetype.DetectReader(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	if img {
+	return mime, nil
+}
+
+func cleanupUrl(url string) string {
+	if strings.Contains(url, "imgur") && strings.HasSuffix(url, "gifv") {
+		return strings.ReplaceAll(url, "gifv", "webm")
+	}
+	return url
+}
+
+func getArticle(u string) (*string, error) {
+	url := cleanupUrl(u)
+
+	t, err := getMimeType(url)
+	if err != nil {
+		return nil, err
+	}
+
+	switch knownTypes(t) {
+	case image:
 		str := fmt.Sprintf("<img src=\"%s\" class=\"webfeedsFeaturedVisual \"/>", url)
+		return &str, nil
+	case video:
+		str := fmt.Sprintf("<video><source src=\"%s\" type=\"%s\" /></video>", url, t.String())
 		return &str, nil
 	}
 

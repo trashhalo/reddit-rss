@@ -20,6 +20,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println(r.URL)
+
 	url := fmt.Sprintf("https://reddit.com%s", r.URL)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
