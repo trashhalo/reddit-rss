@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/cameronstanley/go-reddit"
@@ -71,21 +70,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, rss)
 }
 
-var skipRead = regexp.MustCompile(`(reddit\.com|\.jpg|\.png|\.pdf)`)
-
 type getArticleFn = func(url string) (*string, error)
 
 func linkToFeed(getArticle getArticleFn, link *reddit.Link) *feeds.Item {
 	var content string
-	if !skipRead.MatchString(link.URL) {
-		c, err := getArticle(link.URL)
-		if err != nil {
-			log.Println("error downloading content", err)
-		} else {
-			content = *c
-		}
+	c, err := getArticle(link.URL)
+	if err != nil {
+		log.Println("error downloading content", err)
 	} else {
-		log.Println("skipping readability", link.URL)
+		content = *c
 	}
 	author := link.Author
 	u, err := url.Parse(link.URL)
