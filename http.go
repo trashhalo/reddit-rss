@@ -48,25 +48,31 @@ func cleanupUrl(url string) (string, error) {
 		return strings.ReplaceAll(url, "gifv", "webm"), nil
 	}
 
-	if strings.Contains(url, "gfycat") {
-		res, err := http.Get(url)
+	return url, nil
+}
+
+func getArticle(u string) (*string, error) {
+	// todo clean up
+	if strings.Contains(u, "gfycat") {
+		res, err := http.Get(u)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		defer res.Body.Close()
 		doc, err := goquery.NewDocumentFromReader(res.Body)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
-		vid, _ := doc.Find("meta[property=\"og:video\"]").Attr("content")
-		return vid, nil
+		img, _ := doc.Find("meta[property=\"og:image\"][content$=\".jpg\"]").Attr("content")
+		vid, _ := doc.Find("meta[property=\"og:video:iframe\"]").Attr("content")
+		width, _ := doc.Find("meta[property=\"og:video:width\"]").Attr("content")
+		height, _ := doc.Find("meta[property=\"og:video:height\"]").Attr("content")
+		str := fmt.Sprintf("<div><iframe src=\"%s\" width=\"%s\" height=\"%s\"/> <img src=\"%s\" class=\"webfeedsFeaturedVisual\"/></div>", vid, width, height, img)
+		return &str, nil
 	}
-	return url, nil
-}
 
-func getArticle(u string) (*string, error) {
 	url, err := cleanupUrl(u)
 	if err != nil {
 		return nil, err
