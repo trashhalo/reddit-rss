@@ -72,11 +72,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, rss)
 }
 
-type getArticleFn = func(url string) (*string, error)
+type getArticleFn = func(link *reddit.Link) (*string, error)
 
 func linkToFeed(getArticle getArticleFn, link *reddit.Link) *feeds.Item {
 	var content string
-	c, err := getArticle(link.URL)
+	c, err := getArticle(link)
 	if err != nil {
 		log.Println("error downloading content", err)
 	} else {

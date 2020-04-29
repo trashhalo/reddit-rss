@@ -1,6 +1,8 @@
 package main
 
-import "github.com/cameronstanley/go-reddit"
+import (
+	"github.com/cameronstanley/go-reddit"
+)
 
 type linkListing struct {
 	Kind string `json:"kind"`

@@ -47,7 +47,7 @@ type Link struct {
 	ReportReasons       []interface{} `json:"report_reasons"`
 	Saved               bool          `json:"saved"`
 	Score               int           `json:"score"`
-	SecureMedia         interface{}   `json:"secure_media"`
+	SecureMedia         SecureMedia   `json:"secure_media"`
 	SecureMediaEmbed    interface{}   `json:"secure_media_embed"`
 	SelftextHTML        string        `json:"selftext_html"`
 	Selftext            string        `json:"selftext"`

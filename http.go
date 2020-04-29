@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/cameronstanley/go-reddit"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-shiori/go-readability"
 )
@@ -51,7 +52,8 @@ func cleanupUrl(url string) (string, error) {
 	return url, nil
 }
 
-func getArticle(u string) (*string, error) {
+func getArticle(link *reddit.Link) (*string, error) {
+	u := link.URL
 	// todo clean up
 	if strings.Contains(u, "gfycat") {
 		res, err := http.Get(u)
@@ -70,6 +72,15 @@ func getArticle(u string) (*string, error) {
 		width, _ := doc.Find("meta[property=\"og:video:width\"]").Attr("content")
 		height, _ := doc.Find("meta[property=\"og:video:height\"]").Attr("content")
 		str := fmt.Sprintf("<div><iframe src=\"%s\" width=\"%s\" height=\"%s\"/> <img src=\"%s\" class=\"webfeedsFeaturedVisual\"/></div>", vid, width, height, img)
+		return &str, nil
+	}
+
+	if strings.Contains(u, "v.redd.it") {
+		video := link.SecureMedia.RedditVideo
+		if video == nil {
+			return nil, nil
+		}
+		str := fmt.Sprintf("<iframe src=\"%s\" width=\"%d\" height=\"%d\"/> <img src=\"%s\" class=\"webfeedsFeaturedVisual\"/>", video.FallbackURL, video.Width, video.Height, link.Thumbnail)
 		return &str, nil
 	}
 

@@ -21,3 +21,13 @@ type Oembed struct {
 	Version         string      `json:"version"`
 	Width           interface{} `json:"width"`
 }
+
+type SecureMedia struct {
+	RedditVideo *RedditVideoClass `json:"reddit_video"`
+}
+
+type RedditVideoClass struct {
+	FallbackURL string `json:"fallback_url"`
+	Height      int64  `json:"height"`
+	Width       int64  `json:"width"`
+}
