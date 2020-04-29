@@ -45,12 +45,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	now := time.Now()
 	feed := &feeds.Feed{
 		Title:       fmt.Sprintf("reddit-rss %s", r.URL),
 		Link:        &feeds.Link{Href: "https://github.com/trashhalo/reddit-rss"},
 		Description: "Reddit RSS feed that links directly to the content",
 		Author:      &feeds.Author{Name: "Stephen Solka", Email: "s@0qz.fun"},
-		Created:     time.Now(),
+		Created:     now,
+		Updated:     now,
 	}
 
 	for _, link := range result.Data.Children {
