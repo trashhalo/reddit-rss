@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/cameronstanley/go-reddit"
@@ -55,7 +56,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		Updated:     now,
 	}
 
+	var limit int
+	limitStr, scoreLimit := r.URL.Query()["limit"]
+	if scoreLimit {
+		limit, err = strconv.Atoi(limitStr[0])
+		if err != nil {
+			scoreLimit = false
+		}
+	}
+
 	for _, link := range result.Data.Children {
+		if scoreLimit && limit > link.Data.Score {
+			continue
+		}
+
 		item := linkToFeed(getArticle, &link.Data)
 		if err != nil {
 			log.Println(err)
