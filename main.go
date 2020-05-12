@@ -100,6 +100,7 @@ func linkToFeed(getArticle getArticleFn, link *reddit.Link) *feeds.Item {
 	} else {
 		content = *c
 	}
+	content = fmt.Sprintf(`<p><a href="https://reddit.com%s">comments</a></p> %s`, link.Permalink, content)
 	author := link.Author
 	u, err := url.Parse(link.URL)
 	if err == nil {
