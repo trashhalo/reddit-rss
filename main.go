@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/cameronstanley/go-reddit"
+	"github.com/getsentry/sentry-go"
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/gorilla/feeds"
 )
 
@@ -115,9 +117,18 @@ func linkToFeed(getArticle getArticleFn, link *reddit.Link) *feeds.Item {
 }
 
 func main() {
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn: os.Getenv("SENTRY_DSN"),
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
 	log.Println("starting reddit-rss")
 
-	http.HandleFunc("/", handler)
+	sentryHandler := sentryhttp.New(sentryhttp.Options{})
+	http.HandleFunc("/", sentryHandler.HandleFunc(handler))
 
 	port := os.Getenv("PORT")
 	if port == "" {
