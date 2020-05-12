@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -78,7 +79,7 @@ func getArticle(link *reddit.Link) (*string, error) {
 	if strings.Contains(u, "v.redd.it") {
 		video := link.SecureMedia.RedditVideo
 		if video == nil {
-			return nil, nil
+			return nil, errors.New("video missing from json")
 		}
 		str := fmt.Sprintf("<iframe src=\"%s\" width=\"%d\" height=\"%d\"/> <img src=\"%s\" class=\"webfeedsFeaturedVisual\"/>", video.FallbackURL, video.Width, video.Height, link.Thumbnail)
 		return &str, nil
