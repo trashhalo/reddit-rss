@@ -74,7 +74,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 		item := linkToFeed(getArticle, &link.Data)
 		if err != nil {
-			log.Println(err)
 			continue
 		}
 		feed.Items = append(feed.Items, item)
@@ -94,10 +93,8 @@ type getArticleFn = func(link *reddit.Link) (*string, error)
 
 func linkToFeed(getArticle getArticleFn, link *reddit.Link) *feeds.Item {
 	var content string
-	c, err := getArticle(link)
-	if err != nil {
-		log.Println("error downloading content", err)
-	} else {
+	c, _ := getArticle(link)
+	if c != nil {
 		content = *c
 	}
 	content = fmt.Sprintf(`<p><a href="https://reddit.com%s">comments</a></p> %s`, link.Permalink, content)
