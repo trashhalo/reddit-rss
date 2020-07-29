@@ -61,6 +61,20 @@ type Link struct {
 	Ups                 int           `json:"ups"`
 	UserReports         []interface{} `json:"user_reports"`
 	Visited             bool          `json:"visited"`
+
+	MediaMetadata map[string]MediaMetadata `json:"media_metadata,omitempty"`
+}
+
+type MediaMetadataS struct {
+	Width  int    `json:"x"`
+	Height int    `json:"y"`
+	U      string `json:"u"`
+	Mp4    string `json:"mp4"`
+	Gif    string `json:"gif"`
+}
+
+type MediaMetadata struct {
+	S MediaMetadataS `json:"s"`
 }
 
 const linkType = "t3"

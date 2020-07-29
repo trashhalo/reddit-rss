@@ -53,8 +53,26 @@ func cleanupUrl(url string) (string, error) {
 	return url, nil
 }
 
+func fixAmp(url string) string {
+	return strings.Replace(url, "&amp;", "&", -1)
+}
+
 func getArticle(link *reddit.Link) (*string, error) {
 	u := link.URL
+
+	if len(link.MediaMetadata) > 0 {
+		str := "<div>"
+		for _, media := range link.MediaMetadata {
+			if media.S.Gif != "" {
+				str = fmt.Sprintf("%s<img src=\"%s\" /><br/>", str, fixAmp(media.S.Gif))
+			} else {
+				str = fmt.Sprintf("%s<img src=\"%s\" /><br/>", str, fixAmp(media.S.U))
+			}
+		}
+		str = fmt.Sprintf("%s</div>", str)
+		return &str, nil
+	}
+
 	// todo clean up
 	if strings.Contains(u, "gfycat") {
 		res, err := http.Get(u)
