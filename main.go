@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cameronstanley/go-reddit"
@@ -67,7 +68,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var safe bool
+	safeStr, hasSafe := r.URL.Query()["safe"]
+	if hasSafe {
+		safe = strings.ToLower(safeStr[0]) == "true"
+	}
+
 	for _, link := range result.Data.Children {
+		if hasSafe && safe && (link.Data.Over18 || strings.ToLower(link.Data.LinkFlairText) == "nsfw") {
+			continue
+		}
+
 		if scoreLimit && limit > link.Data.Score {
 			continue
 		}
