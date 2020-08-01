@@ -128,7 +128,7 @@ func Test_rssHandler(t *testing.T) {
 			}))
 			defer server.Close()
 
-			nowVal, _ := time.Parse("2006-01-02", "2006-01-02")
+			nowVal, _ := time.Parse(time.RFC822, time.RFC822)
 			now := func() time.Time {
 				return nowVal
 			}
