@@ -18,13 +18,14 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
-	github.com/stretchr/testify v1.6.1 // indirect
+	github.com/stretchr/testify v1.6.1
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
+	gotest.tools v2.2.0+incompatible
 )
 
 replace github.com/cameronstanley/go-reddit => ./go-reddit

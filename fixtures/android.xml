@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>reddit-rss /r/android.json</title>
+    <link>https://github.com/trashhalo/reddit-rss</link>
+    <description>Reddit RSS feed that links directly to the content</description>
+    <managingEditor>s@0qz.fun (Stephen Solka)</managingEditor>
+    <pubDate>Mon, 02 Jan 2006 00:00:00 +0000</pubDate>
+    <lastBuildDate>Mon, 02 Jan 2006 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>My cool link</title>
+      <link></link>
+      <description></description>
+      <content:encoded><![CDATA[<p><a href="https://reddit.com">comments</a></p> foo]]></content:encoded>
+      <pubDate>Wed, 31 Dec 1969 19:00:00 -0500</pubDate>
+    </item>
+  </channel>
+</rss>
