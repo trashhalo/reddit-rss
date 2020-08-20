@@ -38,4 +38,7 @@ ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 COPY --from=builder /app/server /server
 EXPOSE 8080
 
+ENV PORT="8080"
+ENV REDDIT_URL="https://old.reddit.com"
+
 CMD ["/init"]

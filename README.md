@@ -18,6 +18,9 @@ If you are interested in using it to you:
 3. Change the domain name to, reddit.0qz.fun like: https://reddit.0qz.fun/r/android.json
 4. Subscribe to ^^^ that url in your favorite feed reader.
 
+## exposed ports
+- 8080 (HTTP)
+
 ## query params
 
 -   `?safe=true` filter out nsfw posts
@@ -27,3 +30,20 @@ If you are interested in using it to you:
 ## Quick Deploy
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+## configuration
+
+to further configure your instance, you can set the following environment variables
+
+### REDDIT_URL
+
+this controls which interface you want your rss feed entries to link to (to avoid tracking and that annoying use mobile app popup). any alternative reddit interface can be provided here, ie: https://libredd.it or https://teddit.net .
+
+
+it defaults to ```"https://old.reddit.com"```.
+
+### PORT
+
+which port your instance is listening on.
+
+defaults to ```"8080"```
