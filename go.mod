@@ -12,6 +12,7 @@ require (
 	github.com/go-shiori/go-readability v0.0.0-20200413080041-05caea5f6592
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/gorilla/feeds v1.1.1
+	github.com/jarcoal/httpmock v1.0.6 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
@@ -28,4 +29,4 @@ require (
 	gotest.tools v2.2.0+incompatible
 )
 
-replace github.com/cameronstanley/go-reddit => ./go-reddit
+replace github.com/cameronstanley/go-reddit => ./pkg/reddit

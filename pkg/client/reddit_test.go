@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"encoding/json"
@@ -14,9 +14,9 @@ import (
 	"gotest.tools/assert"
 )
 
-func Test_rssHandler(t *testing.T) {
+func Test_RssHandler(t *testing.T) {
 	type args struct {
-		getArticle getArticleFn
+		getArticle GetArticleFn
 		r          *http.Request
 	}
 	tests := []struct {
@@ -133,7 +133,7 @@ func Test_rssHandler(t *testing.T) {
 				return nowVal
 			}
 
-			rssHandler(server.URL, now, server.Client(), tt.args.getArticle, w, tt.args.r)
+			RssHandler(server.URL, now, server.Client(), tt.args.getArticle, w, tt.args.r)
 			res := w.Result()
 			defer res.Body.Close()
 

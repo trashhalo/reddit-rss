@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/cameronstanley/go-reddit"
+	gReddit "github.com/cameronstanley/go-reddit"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-shiori/go-readability"
 )
@@ -57,7 +57,7 @@ func fixAmp(url string) string {
 	return strings.Replace(url, "&amp;", "&", -1)
 }
 
-func getArticle(link *reddit.Link) (*string, error) {
+func GetArticle(link *gReddit.Link) (*string, error) {
 	u := link.URL
 
 	if len(link.MediaMetadata) > 0 {

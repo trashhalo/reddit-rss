@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -31,10 +32,10 @@ type linkListing struct {
 	Data linkListingData `json:"data"`
 }
 
-type getArticleFn = func(link *reddit.Link) (*string, error)
-type nowFn = func() time.Time
+type GetArticleFn = func(link *reddit.Link) (*string, error)
+type NowFn = func() time.Time
 
-func rssHandler(redditURL string, now nowFn, client *http.Client, getArticle getArticleFn, w http.ResponseWriter, r *http.Request) {
+func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle GetArticleFn, w http.ResponseWriter, r *http.Request) {
 	if r.URL.String() == "/" {
 		http.Redirect(w, r, "https://www.reddit.com/r/rss/comments/fvg3ed/i_built_a_better_rss_feed_for_reddit/", 301)
 		return
@@ -114,4 +115,27 @@ func rssHandler(redditURL string, now nowFn, client *http.Client, getArticle get
 	w.Header().Set("Content-Type", "application/rss+xml")
 	w.Header().Set("Cache-Control", "max-age=3600, public")
 	io.WriteString(w, rss)
+}
+
+func linkToFeed(getArticle GetArticleFn, link *reddit.Link) *feeds.Item {
+	var content string
+	c, _ := getArticle(link)
+	if c != nil {
+		content = *c
+	}
+	content = fmt.Sprintf(`<p><a href="https://reddit.com%s">comments</a></p> %s`, link.Permalink, content)
+	author := link.Author
+	u, err := url.Parse(link.URL)
+	if err == nil {
+		author = u.Host
+	}
+	t := time.Unix(int64(link.CreatedUtc), 0)
+	return &feeds.Item{
+		Title:   link.Title,
+		Link:    &feeds.Link{Href: link.URL},
+		Author:  &feeds.Author{Name: author},
+		Created: t,
+		Id:      link.ID,
+		Content: content,
+	}
 }

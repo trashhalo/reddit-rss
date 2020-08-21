@@ -18,8 +18,8 @@ module.exports = shipit => {
   });
 
   shipit.blTask('app:build', async () => {
-    await shipit.local('go test .', {cwd: shipit.workspace});
-    await shipit.local('CGO_ENABLED=0 go build -a -ldflags \'-extldflags "-static"\' .', {cwd: shipit.workspace});
+    await shipit.local('go test ./...', {cwd: shipit.workspace});
+    await shipit.local('CGO_ENABLED=0 go build -a -ldflags \'-extldflags "-static"\' ./cmd/reddit-rss', {cwd: shipit.workspace});
   });
 
   shipit.on('published', () => {
