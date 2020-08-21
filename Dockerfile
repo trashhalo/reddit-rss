@@ -16,7 +16,7 @@ RUN go mod download
 COPY . ./
 
 # Build the binary.
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server ./cmd/reddit-rss
 
 # Use the official Alpine image for a lean production container.
 # https://hub.docker.com/_/alpine
