@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,10 +10,12 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cameronstanley/go-reddit"
 	"github.com/gorilla/feeds"
+	"github.com/graph-gophers/dataloader"
 )
 
 type linkListingChildren struct {
@@ -36,6 +39,8 @@ type GetArticleFn = func(link *reddit.Link) (*string, error)
 type NowFn = func() time.Time
 
 func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle GetArticleFn, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	if r.URL.String() == "/" {
 		http.Redirect(w, r, "https://www.reddit.com/r/rss/comments/fvg3ed/i_built_a_better_rss_feed_for_reddit/", 301)
 		return
@@ -52,7 +57,7 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 
 	req.Header.Add("User-Agent", "reddit-rss 1.0")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -91,6 +96,8 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 		safe = strings.ToLower(safeStr[0]) == "true"
 	}
 
+	loader := articleLoader(getArticle)
+	var thunks []dataloader.Thunk
 	for _, link := range result.Data.Children {
 		if hasSafe && safe && (link.Data.Over18 || strings.ToLower(link.Data.LinkFlairText) == "nsfw") {
 			continue
@@ -100,10 +107,16 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 			continue
 		}
 
-		item := linkToFeed(getArticle, &link.Data)
+		thunks = append(thunks, loader.Load(ctx, dataKey(link.Data)))
+	}
+
+	for _, thunk := range thunks {
+		val, err := thunk()
 		if err != nil {
 			continue
 		}
+
+		item := val.(*feeds.Item)
 		feed.Items = append(feed.Items, item)
 	}
 
@@ -138,4 +151,46 @@ func linkToFeed(getArticle GetArticleFn, link *reddit.Link) *feeds.Item {
 		Id:      link.ID,
 		Content: content,
 	}
+}
+
+type dataKey reddit.Link
+
+func (k dataKey) String() string {
+	l := reddit.Link(k)
+	return l.ID
+}
+
+func (k dataKey) Raw() interface{} { return k }
+
+func articleLoader(getArticle GetArticleFn) *dataloader.Loader {
+	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+		wg := &sync.WaitGroup{}
+		lock := &sync.Mutex{}
+		resultMap := make(map[string]*dataloader.Result)
+
+		for _, key := range keys {
+			data := reddit.Link(key.(dataKey))
+			wg.Add(1)
+
+			go func(lock *sync.Mutex, wg *sync.WaitGroup, l reddit.Link) {
+				defer wg.Done()
+
+				item := linkToFeed(getArticle, &l)
+
+				lock.Lock()
+				defer lock.Unlock()
+				resultMap[l.ID] = &dataloader.Result{Data: item}
+			}(lock, wg, data)
+		}
+
+		wg.Wait()
+
+		var results []*dataloader.Result
+		for _, key := range keys {
+			data := reddit.Link(key.(dataKey))
+			results = append(results, resultMap[data.ID])
+		}
+
+		return results
+	}, dataloader.WithBatchCapacity(10))
 }
