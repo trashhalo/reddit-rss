@@ -9,7 +9,8 @@ WORKDIR /app
 # Retrieve application dependencies.
 # This allows the container build to reuse cached dependencies.
 COPY go.* ./
-COPY go-reddit ./go-reddit
+RUN mkdir pkg
+COPY pkg/reddit ./pkg/reddit
 RUN go mod download
 
 # Copy local code to the container image.
