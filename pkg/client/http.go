@@ -1,9 +1,13 @@
 package client
 
 import (
+	"bytes"
+	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -30,8 +34,8 @@ func knownTypes(m *mimetype.MIME) fileType {
 	return unknown
 }
 
-func getMimeType(url string) (*mimetype.MIME, error) {
-	resp, err := http.Get(url)
+func getMimeType(client *http.Client, url string) (*mimetype.MIME, error) {
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +61,7 @@ func fixAmp(url string) string {
 	return strings.Replace(url, "&amp;", "&", -1)
 }
 
-func GetArticle(link *gReddit.Link) (*string, error) {
+func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 	u := link.URL
 
 	if len(link.MediaMetadata) > 0 {
@@ -75,7 +79,7 @@ func GetArticle(link *gReddit.Link) (*string, error) {
 
 	// todo clean up
 	if strings.Contains(u, "gfycat") {
-		res, err := http.Get(u)
+		res, err := client.Get(u)
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +112,7 @@ func GetArticle(link *gReddit.Link) (*string, error) {
 		return nil, err
 	}
 
-	t, err := getMimeType(url)
+	t, err := getMimeType(client, url)
 	if err != nil {
 		return nil, err
 	}
@@ -127,4 +131,41 @@ func GetArticle(link *gReddit.Link) (*string, error) {
 		return nil, err
 	}
 	return &article.Content, nil
+}
+
+func articleFromURL(ctx context.Context, client *http.Client, pageURL string, timeout time.Duration) (readability.Article, error) {
+	// Make sure URL is valid
+	_, err := url.ParseRequestURI(pageURL)
+	if err != nil {
+		return readability.Article{}, fmt.Errorf("failed to parse URL: %v", err)
+	}
+
+	// Fetch page from URL
+	req, err := http.NewRequestWithContext(ctx, "GET", pageURL, nil)
+	if err != nil {
+		return readability.Article{}, fmt.Errorf("failed to create req for page: %v", err)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return readability.Article{}, fmt.Errorf("failed to fetch the page: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Make sure content type is HTML
+	cp := resp.Header.Get("Content-Type")
+	if !strings.Contains(cp, "text/html") {
+		return readability.Article{}, fmt.Errorf("URL is not a HTML document")
+	}
+
+	// Check if the page is readable
+	var buffer bytes.Buffer
+	tee := io.TeeReader(resp.Body, &buffer)
+
+	parser := readability.NewParser()
+	if !parser.IsReadable(tee) {
+		return readability.Article{}, fmt.Errorf("the page is not readable")
+	}
+
+	// Parse content
+	return parser.Parse(&buffer, pageURL)
 }

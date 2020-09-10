@@ -35,7 +35,7 @@ type linkListing struct {
 	Data linkListingData `json:"data"`
 }
 
-type GetArticleFn = func(link *reddit.Link) (*string, error)
+type GetArticleFn = func(client *http.Client, link *reddit.Link) (*string, error)
 type NowFn = func() time.Time
 
 func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle GetArticleFn, w http.ResponseWriter, r *http.Request) {
@@ -96,7 +96,7 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 		safe = strings.ToLower(safeStr[0]) == "true"
 	}
 
-	loader := articleLoader(getArticle)
+	loader := articleLoader(client, getArticle)
 	var thunks []dataloader.Thunk
 	for _, link := range result.Data.Children {
 		if hasSafe && safe && (link.Data.Over18 || strings.ToLower(link.Data.LinkFlairText) == "nsfw") {
@@ -130,9 +130,9 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 	io.WriteString(w, rss)
 }
 
-func linkToFeed(getArticle GetArticleFn, link *reddit.Link) *feeds.Item {
+func linkToFeed(client *http.Client, getArticle GetArticleFn, link *reddit.Link) *feeds.Item {
 	var content string
-	c, _ := getArticle(link)
+	c, _ := getArticle(client, link)
 	if c != nil {
 		content = *c
 	}
@@ -162,7 +162,7 @@ func (k dataKey) String() string {
 
 func (k dataKey) Raw() interface{} { return k }
 
-func articleLoader(getArticle GetArticleFn) *dataloader.Loader {
+func articleLoader(client *http.Client, getArticle GetArticleFn) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		wg := &sync.WaitGroup{}
 		lock := &sync.Mutex{}
@@ -175,7 +175,7 @@ func articleLoader(getArticle GetArticleFn) *dataloader.Loader {
 			go func(lock *sync.Mutex, wg *sync.WaitGroup, l reddit.Link) {
 				defer wg.Done()
 
-				item := linkToFeed(getArticle, &l)
+				item := linkToFeed(client, getArticle, &l)
 
 				lock.Lock()
 				defer lock.Unlock()

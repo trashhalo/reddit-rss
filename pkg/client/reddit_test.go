@@ -29,7 +29,7 @@ func Test_RssHandler(t *testing.T) {
 			name: "Happy Path",
 			args: args{
 				r: httptest.NewRequest("get", "/r/android.json", nil),
-				getArticle: func(link *reddit.Link) (*string, error) {
+				getArticle: func(client *http.Client, link *reddit.Link) (*string, error) {
 					resp := "foo"
 					return &resp, nil
 				},
@@ -51,7 +51,7 @@ func Test_RssHandler(t *testing.T) {
 			name: "Query Param Safe",
 			args: args{
 				r: httptest.NewRequest("get", "/r/android.json?safe=true", nil),
-				getArticle: func(link *reddit.Link) (*string, error) {
+				getArticle: func(client *http.Client, link *reddit.Link) (*string, error) {
 					resp := "foo"
 					return &resp, nil
 				},
@@ -86,7 +86,7 @@ func Test_RssHandler(t *testing.T) {
 			name: "Query Param Limit",
 			args: args{
 				r: httptest.NewRequest("get", "/r/android.json?limit=100", nil),
-				getArticle: func(link *reddit.Link) (*string, error) {
+				getArticle: func(client *http.Client, link *reddit.Link) (*string, error) {
 					resp := "foo"
 					return &resp, nil
 				},
