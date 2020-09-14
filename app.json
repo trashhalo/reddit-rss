@@ -1,0 +1,13 @@
+{
+  "name": "Reddit RSS",
+  "description": "Improved RSS feed for reddit.",
+  "keywords": ["rss", "feed", "reddit", "productivity"],
+  "website": "https://github.com/trashhalo/reddit-rss",
+  "repository": "https://github.com/trashhalo/reddit-rss",
+  "env": {
+    "GOVERSION": {
+      "description": "Go version to use for application. Due to an existing issue, you need to specify the go version explicity through a command or environment variable. Check https://github.com/heroku/heroku-buildpack-go/issues/301#issuecomment-625249712",
+      "value": "1.14"
+    }
+  }
+}
