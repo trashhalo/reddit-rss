@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"net/url"
@@ -63,6 +64,11 @@ func fixAmp(url string) string {
 
 func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 	u := link.URL
+
+	if link.IsSelf {
+		str := html.UnescapeString(link.SelftextHTML)
+		return &str, nil
+	}
 
 	if len(link.MediaMetadata) > 0 {
 		str := "<div>"
