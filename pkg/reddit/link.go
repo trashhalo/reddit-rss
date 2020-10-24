@@ -62,7 +62,8 @@ type Link struct {
 	UserReports         []interface{} `json:"user_reports"`
 	Visited             bool          `json:"visited"`
 
-	MediaMetadata map[string]MediaMetadata `json:"media_metadata,omitempty"`
+	MediaMetadata       map[string]MediaMetadata `json:"media_metadata,omitempty"`
+	CrossPostParentList []Link                   `json:"crosspost_parent_list"`
 }
 
 type MediaMetadataS struct {

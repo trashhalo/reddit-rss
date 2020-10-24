@@ -62,6 +62,8 @@ func fixAmp(url string) string {
 	return strings.Replace(url, "&amp;", "&", -1)
 }
 
+var videoMissingErr = errors.New("video missing from json")
+
 func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 	u := link.URL
 
@@ -107,7 +109,14 @@ func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 	if strings.Contains(u, "v.redd.it") {
 		video := link.SecureMedia.RedditVideo
 		if video == nil {
-			return nil, errors.New("video missing from json")
+			if len(link.CrossPostParentList) == 0 {
+				return nil, videoMissingErr
+			}
+			parent := link.CrossPostParentList[0]
+			video = parent.SecureMedia.RedditVideo
+		}
+		if video == nil {
+			return nil, videoMissingErr
 		}
 		str := fmt.Sprintf("<iframe src=\"%s\" width=\"%d\" height=\"%d\"/> <img src=\"%s\" class=\"webfeedsFeaturedVisual\"/>", video.FallbackURL, video.Width, video.Height, link.Thumbnail)
 		return &str, nil
