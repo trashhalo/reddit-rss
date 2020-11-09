@@ -10,6 +10,7 @@ Your options are `docker build .` or `go build ./cmd/reddit-rss`.
 
 -   `?safe=true` filter out nsfw posts
 -   `?limit=100` filter out posts with less than 100 up votes
+-   `?flair=Energy%20Products` only include posts that have that flair
 
 ## Quick Deploy
 
