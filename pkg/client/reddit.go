@@ -96,6 +96,12 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 		safe = strings.ToLower(safeStr[0]) == "true"
 	}
 
+	var flair string
+	flairStr, hasFlair := r.URL.Query()["flair"]
+	if hasFlair {
+		flair = flairStr[0]
+	}
+
 	loader := articleLoader(client, getArticle)
 	var thunks []dataloader.Thunk
 	for _, link := range result.Data.Children {
@@ -104,6 +110,10 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 		}
 
 		if scoreLimit && limit > link.Data.Score {
+			continue
+		}
+
+		if hasFlair && flair != "" && link.Data.LinkFlairText != flair {
 			continue
 		}
 
