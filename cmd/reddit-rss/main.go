@@ -7,8 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/trashhalo/reddit-rss/pkg/proxy"
-
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/trashhalo/reddit-rss/pkg/client"
@@ -27,17 +25,12 @@ func main() {
 
 	sentryHandler := sentryhttp.New(sentryhttp.Options{})
 
-	http.HandleFunc("/", sentryHandler.HandleFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		httpClient := http.DefaultClient
-		proxies := proxy.ProxyList[:]
-		h, err := proxy.NewClient(ctx, proxies, "https://ifconfig.io")
-		if err != nil {
-			log.Println("failed to get proxy client", err)
-		} else {
-			httpClient = h
-		}
+	http.HandleFunc("/info/ping", sentryHandler.HandleFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	}))
 
+	http.HandleFunc("/", sentryHandler.HandleFunc(func(w http.ResponseWriter, r *http.Request) {
+		httpClient := http.DefaultClient
 		client.RssHandler("https://reddit.com", time.Now, httpClient, client.GetArticle, w, r)
 	}))
 
