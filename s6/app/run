@@ -1,0 +1,2 @@
+#!/usr/bin/with-contenv sh
+HTTPS_PROXY=http://localhost:3000 /server

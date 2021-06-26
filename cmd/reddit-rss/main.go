@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,6 +17,8 @@ import (
 )
 
 func main() {
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn: os.Getenv("SENTRY_DSN"),
 	})

@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+echo >&2 "service1 exited. code=${1}"
+exec s6-svscanctl -t /var/run/s6/services
