@@ -1,2 +1,2 @@
 #!/usr/bin/with-contenv sh
-/usr/bin/mitmdump -p 3000
+/usr/bin/tinyproxy -d

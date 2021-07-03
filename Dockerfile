@@ -24,10 +24,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server ./cmd/reddit-rs
 # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
 FROM alpine:edge
 
-RUN apk --update --no-cache add cmd:pip3 python3 ca-certificates gcc libffi-dev python3-dev musl-dev openssl-dev g++ libxml2-dev\
-    libxslt-dev libjpeg-turbo-dev zlib-dev tshark
-RUN pip3 install --upgrade pip
-RUN pip3 install mitmproxy
+RUN apk --update --no-cache add tinyproxy
 
 ARG S6_OVERLAY_RELEASE=https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64.tar.gz
 ENV S6_OVERLAY_RELEASE=${S6_OVERLAY_RELEASE}
