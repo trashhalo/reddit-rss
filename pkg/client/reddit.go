@@ -146,7 +146,7 @@ func linkToFeed(client *http.Client, getArticle GetArticleFn, link *reddit.Link)
 	if c != nil {
 		content = *c
 	}
-	content = fmt.Sprintf(`<p><a href="https://reddit.com%s">comments</a></p> %s`, link.Permalink, content)
+	content = fmt.Sprintf(`<p><a href="https://old.reddit.com%s">comments</a></p> %s`, link.Permalink, content)
 	author := link.Author
 	u, err := url.Parse(link.URL)
 	if err == nil {

@@ -38,7 +38,7 @@ func main() {
 	var rssHandler http.Handler
 	rssHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httpClient := http.DefaultClient
-		client.RssHandler("https://www.reddit.com", time.Now, httpClient, client.GetArticle, w, r)
+		client.RssHandler("https://old.reddit.com", time.Now, httpClient, client.GetArticle, w, r)
 	})
 
 	redisCacheUrl := os.Getenv("FLY_REDIS_CACHE_URL")
