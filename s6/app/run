@@ -1,2 +1,2 @@
 #!/usr/bin/with-contenv sh
-HTTP_PROXY=http://localhost:8888 /server
+/server
