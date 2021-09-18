@@ -1,0 +1,14 @@
+
+tasks:
+  - init: >
+      go mod download
+      go test ./...
+    command: go run ./cmd/reddit-rss
+
+ports:
+  - port: 8080
+    visibility: public
+
+vscode:
+  extensions:
+    - golang.go
