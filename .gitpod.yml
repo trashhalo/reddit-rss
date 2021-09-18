@@ -2,7 +2,10 @@
 tasks:
   - init: >
       go mod download &&
-      go test ./...
+      go test ./... &&
+      cd $(mktemp -d) &&
+      GO111MODULE=on GOBIN=/tmp/ go get github.com/go-delve/delve/cmd/dlv@master &&
+      mv /tmp/dlv $GOPATH/bin/dlv-dap
 
 ports:
   - port: 8080
