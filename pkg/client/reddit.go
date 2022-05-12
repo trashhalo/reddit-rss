@@ -75,9 +75,9 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 	nowVal := now()
 	feed := &feeds.Feed{
 		Title:       fmt.Sprintf("reddit-rss %s", r.URL),
-		Link:        &feeds.Link{Href: "https://github.com/trashhalo/reddit-rss"},
+		Link:        &feeds.Link{Href: "https://www.reddit.com/r/rss/comments/fvg3ed/i_built_a_better_rss_feed_for_reddit/"},
 		Description: "Reddit RSS feed that links directly to the content",
-		Author:      &feeds.Author{Name: "Stephen Solka", Email: "s@0qz.fun"},
+		Author:      &feeds.Author{Name: "Stephen Solka", Email: "stephen@solka.dev"},
 		Created:     nowVal,
 		Updated:     nowVal,
 	}
