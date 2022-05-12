@@ -24,16 +24,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server ./cmd/reddit-rs
 # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
 FROM alpine:edge
 
-ARG S6_OVERLAY_RELEASE=https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64.tar.gz
-ENV S6_OVERLAY_RELEASE=${S6_OVERLAY_RELEASE}
-ADD ${S6_OVERLAY_RELEASE} /tmp/s6overlay.tar.gz
-RUN apk upgrade --update --no-cache \
-    && rm -rf /var/cache/apk/* \
-    && tar xzf /tmp/s6overlay.tar.gz -C / \
-    && rm /tmp/s6overlay.tar.gz
-COPY s6 /etc/services.d
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
-
 # Copy the binary to the production image from the builder stage.
 COPY --from=builder /app/server /server
 EXPOSE 8080
@@ -41,4 +31,4 @@ EXPOSE 8080
 ENV PORT="8080"
 ENV REDDIT_URL="https://old.reddit.com"
 
-CMD ["/init"]
+CMD ["/server"]
