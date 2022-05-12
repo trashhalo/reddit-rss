@@ -63,6 +63,7 @@ type Link struct {
 	Visited             bool          `json:"visited"`
 
 	MediaMetadata       map[string]MediaMetadata `json:"media_metadata,omitempty"`
+	GalleryData         GalleryData              `json:"gallery_data,omitempty"`
 	CrossPostParentList []Link                   `json:"crosspost_parent_list"`
 }
 
@@ -76,6 +77,15 @@ type MediaMetadataS struct {
 
 type MediaMetadata struct {
 	S MediaMetadataS `json:"s"`
+}
+
+type GalleryDataItem struct {
+	MediaID string `json:"media_id"`
+	ID      int    `json:"id"`
+}
+
+type GalleryData struct {
+	Items []GalleryDataItem `json:"items"`
 }
 
 const linkType = "t3"

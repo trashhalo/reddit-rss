@@ -62,6 +62,16 @@ func fixAmp(url string) string {
 	return strings.Replace(url, "&amp;", "&", -1)
 }
 
+func imgElement(media gReddit.MediaMetadata) string {
+	if media.S.Gif != "" {
+		return fmt.Sprintf("<img src=\"%s\" /><br/>", fixAmp(media.S.Gif))
+	} else if media.S.U != "" {
+		return fmt.Sprintf("<img src=\"%s\" /><br/>", fixAmp(media.S.U))
+	} else {
+		return ""
+	}
+}
+
 var videoMissingErr = errors.New("video missing from json")
 
 func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
@@ -73,15 +83,19 @@ func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 	}
 
 	if len(link.MediaMetadata) > 0 {
-		str := "<div>"
-		for _, media := range link.MediaMetadata {
-			if media.S.Gif != "" {
-				str = fmt.Sprintf("%s<img src=\"%s\" /><br/>", str, fixAmp(media.S.Gif))
-			} else {
-				str = fmt.Sprintf("%s<img src=\"%s\" /><br/>", str, fixAmp(media.S.U))
+		var b strings.Builder
+		b.WriteString("<div>")
+		if len(link.GalleryData.Items) > 0 {
+			for _, item := range link.GalleryData.Items {
+				b.WriteString(imgElement(link.MediaMetadata[item.MediaID]))
+			}
+		} else {
+			for _, media := range link.MediaMetadata {
+				b.WriteString(imgElement(media))
 			}
 		}
-		str = fmt.Sprintf("%s</div>", str)
+		b.WriteString("</div>")
+		str := b.String()
 		return &str, nil
 	}
 
