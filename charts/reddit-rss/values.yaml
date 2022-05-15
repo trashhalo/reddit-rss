@@ -2,7 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# -- Which port to listen on
 port: 8080
+
+# -- Which Reddit interface you want your RSS feed entries to link to
 redditURL: "https://old.reddit.com"
 
 replicaCount: 1
