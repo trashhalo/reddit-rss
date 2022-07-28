@@ -137,7 +137,7 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 	}
 
 	w.Header().Set("Content-Type", "application/rss+xml")
-	w.Header().Set("Cache-Control", "s-maxage=1800, stale-while-revalidate=3600")
+	w.Header().Set("Cache-Control", "public, maxage=1800")
 	io.WriteString(w, rss)
 }
 
