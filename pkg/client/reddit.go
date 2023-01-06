@@ -83,7 +83,7 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 	}
 
 	var limit int
-	limitStr, scoreLimit := r.URL.Query()["limit"]
+	limitStr, scoreLimit := r.URL.Query()["scoreLimit"]
 	if scoreLimit {
 		limit, err = strconv.Atoi(limitStr[0])
 		if err != nil {
