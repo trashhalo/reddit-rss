@@ -24,7 +24,7 @@ If you are interested in using it to you:
 ## query params
 
 -   `?safe=true` filter out nsfw posts
--   `?limit=100` filter out posts with less than 100 up votes
+-   `?scoreLimit=100` filter out posts with less than 100 up votes
 -   `?flair=Energy%20Products` only include posts that have that flair
 
 ## Quick Deploy
