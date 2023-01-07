@@ -3,6 +3,12 @@
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I72N2AC)  
 [reddit post explaining what this is](https://www.reddit.com/r/rss/comments/fvg3ed/i_built_a_better_rss_feed_for_reddit/)
 
+## Breaking Changes
+If you follow this service, please add the announcements rss feed to your reader to be notified of incoming changes.
+
+`https://github.com/trashhalo/reddit-rss/discussions/categories/announcements.atom`
+
+- Limit has been renamed scoreLimit. https://github.com/trashhalo/reddit-rss/issues/46
 
 ## installation
 
