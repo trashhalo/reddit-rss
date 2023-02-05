@@ -151,8 +151,9 @@ func linkToFeed(client *http.Client, getArticle GetArticleFn, link *reddit.Link)
 	if redditUrl == "" {
 		redditUrl = "https://old.reddit.com"
 	}
-	content = fmt.Sprintf(`<p><a href="%s%s">comments</a></p> %s`, redditUrl, link.Permalink, content)
 	author := link.Author
+	authorLink := fmt.Sprintf("%s/u/%s", redditUrl, author)
+	content = fmt.Sprintf(`<p><a href="%s">u/%s</a>&nbsp;<a href="%s%s">comments</a></p> %s`, authorLink, author, redditUrl, link.Permalink, content)
 	u, err := url.Parse(link.URL)
 	if err == nil {
 		author = u.Host
