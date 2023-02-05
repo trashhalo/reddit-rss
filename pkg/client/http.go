@@ -82,6 +82,11 @@ func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 		return &str, nil
 	}
 
+	if link.Media.Oembed.Type == "video" && link.Media.Oembed.HTML != "" {
+		str := html.UnescapeString(link.Media.Oembed.HTML)
+		return &str, nil
+	}
+
 	if len(link.MediaMetadata) > 0 {
 		var b strings.Builder
 		b.WriteString("<div>")
