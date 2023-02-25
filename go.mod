@@ -27,7 +27,7 @@ require (
 	github.com/victorspringer/http-cache v0.0.0-20190721184638-fe78e97af707
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
-	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
