@@ -14,14 +14,14 @@ If you follow this service, please add the announcements rss feed to your reader
 
 Your options are `docker build .` or `go build ./cmd/reddit-rss`.
 
-## using my free hosted version
+## using self hosted version
 
-I run a version of reddit-rss at https://reddit.0qz.fun
+If you run a version of reddit-rss at https://reddit.my.server
 
 If you are interested in using it to you:
 1. Go to a subreddit or meta feed you like example: https://www.reddit.com/r/Android/
 2. Add .json onto the end: https://www.reddit.com/r/Android.json
-3. Change the domain name to, reddit.0qz.fun like: https://reddit.0qz.fun/r/android.json
+3. Change the domain name to, reddit.0qz.fun like: https://reddit.my.server/r/android.json
 4. Subscribe to ^^^ that url in your favorite feed reader.
 
 ## exposed ports
