@@ -74,7 +74,7 @@ func imgElement(media gReddit.MediaMetadata) string {
 
 var videoMissingErr = errors.New("video missing from json")
 
-func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
+func GetArticle(client *RedditClient, link *gReddit.Link) (*string, error) {
 	u := link.URL
 
 	if link.IsSelf {
@@ -106,7 +106,7 @@ func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 
 	// todo clean up
 	if strings.Contains(u, "gfycat") {
-		res, err := client.Get(u)
+		res, err := client.HttpClient.Get(u)
 		if err != nil {
 			return nil, err
 		}
@@ -146,7 +146,7 @@ func GetArticle(client *http.Client, link *gReddit.Link) (*string, error) {
 		return nil, err
 	}
 
-	t, err := getMimeType(client, url)
+	t, err := getMimeType(client.HttpClient, url)
 	if err != nil {
 		return nil, err
 	}

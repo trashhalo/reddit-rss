@@ -29,7 +29,7 @@ func Test_RssHandler(t *testing.T) {
 			name: "Happy Path",
 			args: args{
 				r: httptest.NewRequest("get", "/r/android.json", nil),
-				getArticle: func(client *http.Client, link *reddit.Link) (*string, error) {
+				getArticle: func(client *RedditClient, link *reddit.Link) (*string, error) {
 					resp := "foo"
 					return &resp, nil
 				},
@@ -51,7 +51,7 @@ func Test_RssHandler(t *testing.T) {
 			name: "Query Param Safe",
 			args: args{
 				r: httptest.NewRequest("get", "/r/android.json?safe=true", nil),
-				getArticle: func(client *http.Client, link *reddit.Link) (*string, error) {
+				getArticle: func(client *RedditClient, link *reddit.Link) (*string, error) {
 					resp := "foo"
 					return &resp, nil
 				},
@@ -86,7 +86,7 @@ func Test_RssHandler(t *testing.T) {
 			name: "Query Param Limit",
 			args: args{
 				r: httptest.NewRequest("get", "/r/android.json?limit=100", nil),
-				getArticle: func(client *http.Client, link *reddit.Link) (*string, error) {
+				getArticle: func(client *RedditClient, link *reddit.Link) (*string, error) {
 					resp := "foo"
 					return &resp, nil
 				},
@@ -133,7 +133,12 @@ func Test_RssHandler(t *testing.T) {
 				return nowVal
 			}
 
-			RssHandler(server.URL, now, server.Client(), tt.args.getArticle, w, tt.args.r)
+			redditClient := &RedditClient{
+				HttpClient: server.Client(),
+				Token:      nil,
+			}
+
+			RssHandler(server.URL, now, redditClient, tt.args.getArticle, w, tt.args.r)
 			res := w.Result()
 			defer res.Body.Close()
 

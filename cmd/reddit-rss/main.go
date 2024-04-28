@@ -14,6 +14,7 @@ import (
 	"github.com/trashhalo/reddit-rss/pkg/client"
 	cache "github.com/victorspringer/http-cache"
 	"github.com/victorspringer/http-cache/adapter/redis"
+	"golang.org/x/oauth2"
 )
 
 func main() {
@@ -38,7 +39,39 @@ func main() {
 	var rssHandler http.Handler
 	rssHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httpClient := http.DefaultClient
-		client.RssHandler("https://old.reddit.com", time.Now, httpClient, client.GetArticle, w, r)
+		var token *oauth2.Token
+		baseApiUrl := "https://www.reddit.com"
+		oauthClientID := os.Getenv("OAUTH_CLIENT_ID")
+		if oauthClientID != "" {
+			oauthClientSecret := os.Getenv("OAUTH_CLIENT_SECRET")
+			oauthCfg := &oauth2.Config{
+				ClientID:     oauthClientID,
+				ClientSecret: oauthClientSecret,
+				Endpoint: oauth2.Endpoint{
+					TokenURL:  "https://www.reddit.com/api/v1/access_token",
+					AuthStyle: oauth2.AuthStyleInHeader,
+				},
+			}
+			// login with reddit user password
+			username := os.Getenv("REDDIT_USERNAME")
+			password := os.Getenv("REDDIT_PASSWORD")
+			token, err = oauthCfg.PasswordCredentialsToken(r.Context(), username, password)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			baseApiUrl = "https://oauth.reddit.com"
+		}
+		userAgent := os.Getenv("USER_AGENT")
+		if userAgent == "" {
+			userAgent = "reddit-rss 1.0"
+		}
+		redditClient := &client.RedditClient{
+			HttpClient: httpClient,
+			Token:      token,
+			UserAgent:  userAgent,
+		}
+		client.RssHandler(baseApiUrl, time.Now, redditClient, client.GetArticle, w, r)
 	})
 
 	redisCacheUrl := os.Getenv("FLY_REDIS_CACHE_URL")

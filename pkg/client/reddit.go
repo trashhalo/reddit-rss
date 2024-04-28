@@ -17,6 +17,7 @@ import (
 	"github.com/cameronstanley/go-reddit"
 	"github.com/gorilla/feeds"
 	"github.com/graph-gophers/dataloader"
+	"golang.org/x/oauth2"
 )
 
 type linkListingChildren struct {
@@ -36,10 +37,16 @@ type linkListing struct {
 	Data linkListingData `json:"data"`
 }
 
-type GetArticleFn = func(client *http.Client, link *reddit.Link) (*string, error)
+type RedditClient struct {
+	HttpClient *http.Client
+	UserAgent  string
+	Token      *oauth2.Token
+}
+
+type GetArticleFn = func(client *RedditClient, link *reddit.Link) (*string, error)
 type NowFn = func() time.Time
 
-func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle GetArticleFn, w http.ResponseWriter, r *http.Request) {
+func RssHandler(redditURL string, now NowFn, client *RedditClient, getArticle GetArticleFn, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if r.URL.String() == "/" {
@@ -56,9 +63,12 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 		return
 	}
 
-	req.Header.Add("User-Agent", "reddit-rss 1.0")
+	req.Header.Add("User-Agent", client.UserAgent)
+	if client.Token != nil {
+		req.Header.Set("Authorization", fmt.Sprintf("bearer %s", client.Token.AccessToken))
+	}
 
-	resp, err := client.Do(req)
+	resp, err := client.HttpClient.Do(req)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -141,7 +151,7 @@ func RssHandler(redditURL string, now NowFn, client *http.Client, getArticle Get
 	io.WriteString(w, rss)
 }
 
-func linkToFeed(client *http.Client, getArticle GetArticleFn, link *reddit.Link) *feeds.Item {
+func linkToFeed(client *RedditClient, getArticle GetArticleFn, link *reddit.Link) *feeds.Item {
 	var content string
 	c, _ := getArticle(client, link)
 	if c != nil {
@@ -183,7 +193,7 @@ func (k dataKey) String() string {
 
 func (k dataKey) Raw() interface{} { return k }
 
-func articleLoader(client *http.Client, getArticle GetArticleFn) *dataloader.Loader {
+func articleLoader(client *RedditClient, getArticle GetArticleFn) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		wg := &sync.WaitGroup{}
 		lock := &sync.Mutex{}
