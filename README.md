@@ -1,14 +1,16 @@
 # reddit-rss
+
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/trashhalo/reddit-rss)
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I72N2AC)  
 [reddit post explaining what this is](https://www.reddit.com/r/rss/comments/fvg3ed/i_built_a_better_rss_feed_for_reddit/)
 
 ## Breaking Changes
+
 If you follow this service, please add the announcements rss feed to your reader to be notified of incoming changes.
 
 `https://github.com/trashhalo/reddit-rss/discussions/categories/announcements.atom`
 
-- Limit has been renamed scoreLimit. https://github.com/trashhalo/reddit-rss/issues/46
+-   Limit has been renamed scoreLimit. https://github.com/trashhalo/reddit-rss/issues/46
 
 ## installation
 
@@ -19,13 +21,29 @@ Your options are `docker build .` or `go build ./cmd/reddit-rss`.
 If you run a version of reddit-rss at https://reddit.my.server
 
 If you are interested in using it to you:
+
 1. Go to a subreddit or meta feed you like example: https://www.reddit.com/r/Android/
 2. Add .json onto the end: https://www.reddit.com/r/Android.json
 3. Change the domain name to, reddit.0qz.fun like: https://reddit.my.server/r/android.json
 4. Subscribe to ^^^ that url in your favorite feed reader.
 
+### OAUTH
+
+To get access to better rate limits, you can set up an oauth app on reddit and provide the client id and secret as environment variables.
+Be sure to select script when asked what kind of app you are.
+<https://old.reddit.com/prefs/apps/>
+
+```
+OAUTH_CLIENT_ID=your_client_id # its that id in the top left of the reddit app page
+OAUTH_CLIENT_SECRET=yout_client_secret # its the secret under the id
+REDDIT_USERNAME=your_reddit_username # the username of the account you created the app with
+REDDIT_PASSWORD=your_reddit_password # the password of the account you created the app with
+USER_AGENT="browser:name-of-app:v1.0.0 (by /u/your-reddit-username)"
+```
+
 ## exposed ports
-- 8080 (HTTP)
+
+-   8080 (HTTP)
 
 ## query params
 
@@ -46,11 +64,14 @@ to further configure your instance, you can set the following environment variab
 
 this controls which interface you want your rss feed entries to link to (to avoid tracking and that annoying use mobile app popup). any alternative reddit interface can be provided here, ie: https://libredd.it or https://teddit.net .
 
-
-it defaults to ```"https://old.reddit.com"```.
+it defaults to `"https://old.reddit.com"`.
 
 ### PORT
 
 which port your instance is listening on.
 
-defaults to ```"8080"```
+defaults to `"8080"`
+
+```
+
+```
