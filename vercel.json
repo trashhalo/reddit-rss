@@ -1,7 +1,7 @@
 {
   "rewrites": [{ "source": "/(.*)", "destination": "api/index" }],
   "functions": {
-    "api/index.go": {
+    "cmd/reddit-rss/main.go": {
       "memory": 256
     }
   }
